@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/adduser.dart';
+import 'package:untitled/curd_with_ui/adduser.dart';
 
 void main() {
   runApp(const MyApp());
