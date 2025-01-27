@@ -15,7 +15,7 @@ class ListDemo extends StatelessWidget {
             child: Swing(
               child: Container(
                 height: 400,
-                color: Colors.blue,
+                color: Colors.blue, 
                 child: Text(
                   "name : ${name[index]}",
                   style: TextStyle(fontSize: 30),
