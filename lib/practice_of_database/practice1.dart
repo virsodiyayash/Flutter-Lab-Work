@@ -5,6 +5,11 @@ import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
 
 
+void main(){
+  runApp(MaterialApp(home: DatabaseDemo(),));
+}
+
+
 class DatabaseDemo extends StatefulWidget {
   DatabaseDemo({super.key});
 
@@ -43,6 +48,26 @@ class _DatabaseDemoState extends State<DatabaseDemo> {
     _fetchData();
   }
 
+  Future<void> _deleteDatabase(int id) async{
+    await _database.delete('todo' ,
+    where: 'id = ?',
+      whereArgs: [id]
+    );
+    _fetchData();
+  }
+
+  Future<void> _updateDatabase(int id , String newTitle , String newDesc) async{
+    await _database.update("todo",
+        {
+          'title' : newTitle,
+          'desc' : newDesc
+        },
+        where: 'id = ?',
+        whereArgs: [id]
+    );
+    _fetchData();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -63,8 +88,75 @@ class _DatabaseDemoState extends State<DatabaseDemo> {
           itemCount: data.length,
           itemBuilder: (context , index) {
             return ListTile(
-              title: data[index]['title'],
-              subtitle : data[index]['desc'],
+              title: Text(data[index]['title']),
+              subtitle : Text(data[index]['desc'] ),
+
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(onPressed: (){
+
+                      showDialog(context: context, builder: (context) {
+                        return AlertDialog(
+                          title: Text("Are you sure you want to delete"),
+                          actions: [
+                            ElevatedButton(onPressed: (){
+                              Navigator.pop(context);
+                            }, child: Text("Cancel")),
+
+                            ElevatedButton(onPressed: (){
+                              _deleteDatabase(data[index]['id']);
+                              Navigator.pop(context);
+                            }, child: Text("delete"))
+                          ],
+                        );
+
+                    });
+                  },
+                      icon: Icon(Icons.delete)),
+
+                  IconButton(onPressed: (){
+                    setState(() {
+                      titleController.text = data[index]['title'];
+                      descController.text = data[index]['desc'];
+                     showDialog(context: context, builder: (context) {
+                       return AlertDialog(
+                         title: Text("Edit Data"),
+                         content: Column(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             TextField(
+                               controller: titleController,
+                               decoration: InputDecoration(
+                                 labelText: 'Enter title',
+                               ),
+                             ),
+                             TextField(
+                               controller: descController,
+                               decoration: InputDecoration(
+                                 labelText: 'Enter Desc',
+                               ),
+                             ),
+
+                           ],
+                         ),
+
+                         actions: [
+                           ElevatedButton(onPressed: (){
+                             _updateDatabase(data[index]['id'], titleController.text, descController.text);
+                             Navigator.pop(context);
+                       }, child: Text("Save")),
+                           
+                           ElevatedButton(onPressed: (){
+                             Navigator.pop(context);
+                           }, child: Text("Cancel"))
+                         ],
+                       );
+                     });
+                    });
+                  }, icon: Icon(Icons.edit_outlined))
+                ],
+              ),
             );
           }),
 
@@ -96,7 +188,9 @@ class _DatabaseDemoState extends State<DatabaseDemo> {
                   descController.clear();
                   Navigator.pop(context);
                 },
-                    child: Text('add'))
+                    child: Text('add')),
+
+
               ],
             );
           });
